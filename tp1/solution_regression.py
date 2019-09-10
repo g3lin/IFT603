@@ -81,7 +81,8 @@ class Regression:
                          self.M = M_actuel
                          self.lamb = lamb_actuel
 
-
+        print("M: ",self.M)
+        print("lanbda: ",self.lamb)
 
 
         
