@@ -61,13 +61,17 @@ class Regression:
         self.M = 1
         erreur_min = float("inf")
         k = 10
+        M_min = 0
+        M_max = 10
+        l_min = 0
+        l_max = 10
         
-        for M_actuel in range(0,10):
-            for lamb_actuel in range(0,10):
+        for M_actuel in range(M_min,M_max):
+            for lamb_actuel in range(l_min,l_max):
                 for j in range(0,k):
 
                      X_train, X_valid, t_train, t_valid = train_test_split(X, t, test_size=0.20)
-                     entrainement(X_train,t_train)
+                     self.entrainement(X_train,t_train)
 
                      pred = prediction(X_valid)
                      erreur_moy = erreur(t_valid, pred)
@@ -77,7 +81,8 @@ class Regression:
                          self.M = M_actuel
                          self.lamb = lamb_actuel
 
-
+        print("M: ",self.M)
+        print("lanbda: ",self.lamb)
 
 
         
