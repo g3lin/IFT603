@@ -61,13 +61,17 @@ class Regression:
         self.M = 1
         erreur_min = float("inf")
         k = 10
+        M_min = 0
+        M_max = 10
+        l_min = 0
+        l_max = 10
         
-        for M_actuel in range(0,10):
-            for lamb_actuel in range(0,10):
+        for M_actuel in range(M_min,M_max):
+            for lamb_actuel in range(l_min,l_max):
                 for j in range(0,k):
 
                      X_train, X_valid, t_train, t_valid = train_test_split(X, t, test_size=0.20)
-                     entrainement(X_train,t_train)
+                     self.entrainement(X_train,t_train)
 
                      pred = prediction(X_valid)
                      erreur_moy = erreur(t_valid, pred)
@@ -115,20 +119,20 @@ class Regression:
         phi_x = self.fonction_base_polynomiale(X)
         self.w = [0, 1]
 
-        if using_sklearn == False:
-
-
-
-
-
-        elif using_sklearn == True:
-
-
-
-
-
-        else:
-            print("Mauvaise valeur de 'using_sklearn', doit etre un booleen.")
+#        if using_sklearn == False:
+#
+#
+#
+#
+#
+#        elif using_sklearn == True:
+#
+#
+#
+#
+#
+#        else:
+#            print("Mauvaise valeur de 'using_sklearn', doit etre un booleen.")
 
     def prediction(self, x):
         """
