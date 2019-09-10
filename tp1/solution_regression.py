@@ -109,20 +109,23 @@ class Regression:
 
         """
         #AJOUTER CODE ICI
-        if self.M <= 0:
-            self.recherche_hyperparametre(X, t)
+        # if self.M <= 0:
+        #     self.recherche_hyperparametre(X, t)
 
-        phi_x = self.fonction_base_polynomiale(X)
-        self.w = [0, 1]
+        # phi_x = self.fonction_base_polynomiale(X)
+        # self.w = [0, 1]
 
         if using_sklearn == False:
-
+            print("TODO")
 
 
 
 
         elif using_sklearn == True:
-
+            X = X.reshape(-1,1)
+            reg = linear_model.LinearRegression()
+            reg.fit(X,t)
+            self.w = reg.coef_
 
 
 
