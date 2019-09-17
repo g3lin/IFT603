@@ -63,26 +63,34 @@ class Regression:
         self.M = 1
         erreur_min = float("inf")
         k = 10
+
         M_min = 0
         M_max = 10
+        M_step = 1
+        
         l_min = 0
         l_max = 10
+        l_step = 1
         
-        for M_actuel in range(M_min,M_max):
-            for lamb_actuel in range(l_min,l_max):
+        for M_actuel in range(M_min,M_max,M_step):
+            for lamb_actuel in range(l_min,l_max,l_step):
                 for j in range(0,k):
 
-                     X_train, X_valid, t_train, t_valid = train_test_split(X, t, test_size=0.20)
-                     self.entrainement(X_train,t_train)
+                    X_train, X_valid, t_train, t_valid = train_test_split(X, t, test_size=0.20)
+                    self.entrainement(X_train,t_train,True)
 
-                     pred = self.prediction(X_valid)
-                     erreur_moy = self.erreur(t_valid, pred)
-                     print("M: ",M_actuel,", Lambda = ",lamb_actuel,", j: ",j,", erreur: ",erreur_moy)
+                    erreur_moy = 0
+                    for x in X_valid:
+                        pred = self.prediction(x)
+                        erreur_moy = self.erreur(t_valid, pred)
+                    erreur_moy = erreur_moy/len(X_valid)
 
-                     if erreur_moy < erreur_min:
-                         erreur_min = erreur_moy
-                         self.M = M_actuel
-                         self.lamb = lamb_actuel
+                    print("M: ",M_actuel,", Lambda = ",lamb_actuel,", j: ",j,", erreur: ",erreur_moy)
+
+                    if erreur_moy < erreur_min:
+                        erreur_min = erreur_moy
+                        self.M = M_actuel
+                        self.lamb = lamb_actuel
 
 
         print("M: ",self.M)
@@ -125,27 +133,29 @@ class Regression:
             self.recherche_hyperparametre(X, t)
 
         phi_x = self.fonction_base_polynomiale(X)
-        self.w = [0, 1]
+        #self.w = [0, 1]
 
-        if using_sklearn == False:
-            #print("TODO")
+        if not using_sklearn:
+
             phi_x = self.fonction_base_polynomiale(X)
             phi_x_t = np.transpose(phi_x)
-            #dim_I = phi_x.shape[1]
+            dim_I = phi_x.shape[1]
             
-            self.w = np.dot(((np.dot(phi_x_t,phi_x)+self.lamb)**-1),np.dot(phi_x_t,t))
+            # self.w = np.dot(((np.dot(phi_x_t,phi_x)+self.lamb)**-1),np.dot(phi_x_t,t))
+            self.w = np.dot(((np.dot(phi_x_t,phi_x)+np.dot(self.lamb,np.identity(dim_I)))**-1),np.dot(phi_x_t,t))
+
             print(self.w)
             #np.linalg.solve()
 
 
 
 
-        elif using_sklearn == True:
+        elif using_sklearn :
             #X = X.reshape(-1,1)
             reg = Ridge(alpha=self.lamb)
             reg.fit(phi_x,t)
             self.w = []
-            #self.w = np.append(self.w, reg.intercept_)
+            self.w = np.append(self.w, reg.intercept_)
             self.w = np.append(self.w, reg.coef_)
             print(self.w)
 
@@ -165,7 +175,9 @@ class Regression:
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
         # AJOUTER CODE ICI
-        y = np.dot(np.transpose(self.w),self.fonction_base_polynomiale(x))
+        phi_x = [1]
+        phi_x = np.append(phi_x, self.fonction_base_polynomiale(x))
+        y = np.dot(np.transpose(self.w),phi_x)
         return y
 
 
