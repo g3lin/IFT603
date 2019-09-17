@@ -6,7 +6,7 @@
 
 import numpy as np
 import random
-from sklearn import linear_model
+from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split
 
 
@@ -26,10 +26,10 @@ class Regression:
         """
         phi_x = x
 
-        if type(x) == int:
-            phi_x = x**np.arange(1, self.M+1)
+        # if type(x) == int:
+        #     phi_x = x**np.arange(1, self.M+1)
 
-        elif type(x) == list:
+        if type(x) == np.ndarray:
             phi_x = [[]]
             for elem_x in x:
                 phi_x = np.append(phi_x, [elem_x**np.arange(1, self.M+1)])
@@ -38,9 +38,10 @@ class Regression:
 
 
 
-        else:
-            # WARNING
-            print("warning temporaire")
+        else: 
+
+            phi_x = x**np.arange(1, self.M+1)
+            
 
 
         
@@ -57,6 +58,7 @@ class Regression:
         t: vecteur de cibles
         """
         # AJOUTER CODE ICI
+        print("recherche d'HP")
 
         self.M = 1
         erreur_min = float("inf")
@@ -73,13 +75,15 @@ class Regression:
                      X_train, X_valid, t_train, t_valid = train_test_split(X, t, test_size=0.20)
                      self.entrainement(X_train,t_train)
 
-                     pred = prediction(X_valid)
-                     erreur_moy = erreur(t_valid, pred)
+                     pred = self.prediction(X_valid)
+                     erreur_moy = self.erreur(t_valid, pred)
+                     print("M: ",M_actuel,", Lambda = ",lamb_actuel,", j: ",j,", erreur: ",erreur_moy)
 
                      if erreur_moy < erreur_min:
                          erreur_min = erreur_moy
                          self.M = M_actuel
                          self.lamb = lamb_actuel
+
 
         print("M: ",self.M)
         print("lanbda: ",self.lamb)
@@ -88,6 +92,7 @@ class Regression:
         
 
     def entrainement(self, X, t, using_sklearn=False):
+        
         """
         Entraîne la regression lineaire sur l'ensemble d'entraînement forme des
         entrees ``X`` (un tableau 2D Numpy, ou la n-ieme rangee correspond à l'entree
@@ -107,6 +112,8 @@ class Regression:
         pas d'inversion de matrice, mais utilise plutôt une procedure
         de resolution de systeme d'equations lineaires (voir np.linalg.solve).
 
+        w = (λI + Φ^T Φ)^− 1 * Φ^T t.
+
         Aussi, la variable membre self.M sert à projeter les variables X vers un espace polynomiale de degre M
         (voir fonction self.fonction_base_polynomiale())
 
@@ -114,23 +121,33 @@ class Regression:
 
         """
         #AJOUTER CODE ICI
-        # if self.M <= 0:
-        #     self.recherche_hyperparametre(X, t)
+        if self.M <= 0:
+            self.recherche_hyperparametre(X, t)
 
-        # phi_x = self.fonction_base_polynomiale(X)
-        # self.w = [0, 1]
+        phi_x = self.fonction_base_polynomiale(X)
+        self.w = [0, 1]
 
         if using_sklearn == False:
-            print("TODO")
+            #print("TODO")
+            phi_x = self.fonction_base_polynomiale(X)
+            phi_x_t = np.transpose(phi_x)
+            #dim_I = phi_x.shape[1]
+            
+            self.w = np.dot(((np.dot(phi_x_t,phi_x)+self.lamb)**-1),np.dot(phi_x_t,t))
+            print(self.w)
+            #np.linalg.solve()
 
 
 
 
         elif using_sklearn == True:
-            X = X.reshape(-1,1)
-            reg = linear_model.LinearRegression()
-            reg.fit(X,t)
-            self.w = reg.coef_
+            #X = X.reshape(-1,1)
+            reg = Ridge(alpha=self.lamb)
+            reg.fit(phi_x,t)
+            self.w = []
+            #self.w = np.append(self.w, reg.intercept_)
+            self.w = np.append(self.w, reg.coef_)
+            print(self.w)
 
 
 
@@ -148,7 +165,22 @@ class Regression:
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
         # AJOUTER CODE ICI
-        return 0.5
+        y = np.dot(np.transpose(self.w),self.fonction_base_polynomiale(x))
+        return y
+
+
+        # y = self.w[0]
+
+        # if type(x) == list:
+
+        #     for i in range(x):
+        #         y += x[i]*self.w[i+1]
+        
+        # else:
+        #     y += x*self.w[1]
+
+
+        # return y
 
     @staticmethod
     def erreur(t, prediction):
@@ -157,4 +189,4 @@ class Regression:
         la cible ``t`` et la prediction ``prediction``.
         """
         # AJOUTER CODE ICI
-        return 0.0
+        return (t-prediction)**2

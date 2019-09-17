@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+ #!/usr/bin/env python -W ignore::matplotlib.cbook.mplDeprecation:
 
 import numpy as np
 import sys
 import solution_regression as sr
 import gestion_donnees as gd
 import matplotlib.pyplot as plt
+
+# Supprime l'erreur matplotlib depreciation warning
+import warnings
+warnings.filterwarnings("ignore",category=UserWarning)
 
 
 def warning(erreur_test, erreur_apprentissage, bruit):
