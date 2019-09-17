@@ -141,8 +141,13 @@ class Regression:
             phi_x_t = np.transpose(phi_x)
             dim_I = phi_x.shape[1]
             
+            
             # self.w = np.dot(((np.dot(phi_x_t,phi_x)+self.lamb)**-1),np.dot(phi_x_t,t))
-            self.w = np.dot(((np.dot(phi_x_t,phi_x)+np.dot(self.lamb,np.identity(dim_I)))**-1),np.dot(phi_x_t,t))
+            #self.w = np.dot((np.linalg.inv(np.dot(phi_x_t,phi_x) + self.lamb*np.identity(dim_I)),np.dot(phi_x_t,t)))
+            
+            membre1 = np.linalg.inv(self.lamb*np.identity(dim_I) + np.dot(phi_x_t,phi_x))
+            membre2 = np.dot(phi_x_t,t)
+            self.w = membre1*membre2
 
             print(self.w)
             #np.linalg.solve()
@@ -175,24 +180,12 @@ class Regression:
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
         # AJOUTER CODE ICI
-        phi_x = [1]
+        #phi_x = [1]
+        phi_x=[]
         phi_x = np.append(phi_x, self.fonction_base_polynomiale(x))
         y = np.dot(np.transpose(self.w),phi_x)
         return y
 
-
-        # y = self.w[0]
-
-        # if type(x) == list:
-
-        #     for i in range(x):
-        #         y += x[i]*self.w[i+1]
-        
-        # else:
-        #     y += x*self.w[1]
-
-
-        # return y
 
     @staticmethod
     def erreur(t, prediction):
