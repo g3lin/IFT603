@@ -163,7 +163,7 @@ class Regression:
         elif using_sklearn :
             #X = X.reshape(-1,1)
             reg = Ridge(alpha=self.lamb)
-            reg.fit(phi_x,t)
+            reg.fit(phi_x[:,1:],t)
             self.w = []
             self.w = np.append(self.w, reg.intercept_)
             self.w = np.append(self.w, reg.coef_)
