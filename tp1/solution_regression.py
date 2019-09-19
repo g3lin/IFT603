@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 #####
-# VosNoms (Matricule) .~= À MODIFIER =~.
+# Lauren Picard (19 159 731) Antoine Gélin (19 146 158) Julien Brosseau (19 124 617).
 ###
 
 import numpy as np
-import random
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split
 
@@ -26,9 +25,6 @@ class Regression:
         """
         phi_x = x
 
-        # if type(x) == int:
-        #     phi_x = x**np.arange(1, self.M+1)
-
         if type(x) == np.ndarray:
             phi_x = [[]]
             for elem_x in x:
@@ -36,16 +32,11 @@ class Regression:
             N = len(x)
             phi_x.shape = (N,self.M+1)
 
-
-
         else: 
-
             phi_x = x**np.arange(0, self.M+1)
-            
-
-
         
         return phi_x
+
 
     def recherche_hyperparametre(self, X, t):
         """
@@ -57,7 +48,7 @@ class Regression:
         X: vecteur de donnees
         t: vecteur de cibles
         """
-        # AJOUTER CODE ICI
+        
         print("recherche d'HP")
 
         self.M = 1
@@ -138,40 +129,22 @@ class Regression:
         NOTE IMPORTANTE : lorsque self.M <= 0, il faut trouver la bonne valeur de self.M
 
         """
-        #AJOUTER CODE ICI
         if self.M <= 0:
             self.recherche_hyperparametre(X, t)
 
         phi_x = self.fonction_base_polynomiale(X)
-        #self.w = [0, 1]
 
         if not using_sklearn:
 
             phi_x = self.fonction_base_polynomiale(X)
             phi_x_t = np.transpose(phi_x)
             dim_I = phi_x.shape[1]
-            #print(dim_I)
-            
-            
-            # self.w = np.dot(((np.dot(phi_x_t,phi_x)+self.lamb)**-1),np.dot(phi_x_t,t))
-            #self.w = np.dot((np.linalg.inv(np.dot(phi_x_t,phi_x) + self.lamb*np.identity(dim_I)),np.dot(phi_x_t,t)))
             
             membre1 = np.linalg.inv(self.lamb*np.identity(dim_I) + np.dot(phi_x_t,phi_x))
             membre2 = np.dot(phi_x_t,t)
-            # print(membre1)
-            # print("\n\n")
-            # print(membre2)
-
-            # w0 manque
             self.w = np.dot(membre1,membre2)
 
-            #np.linalg.solve()
-
-
-
-
         elif using_sklearn :
-            #X = X.reshape(-1,1)
             reg = Ridge(alpha=self.lamb)
             reg.fit(phi_x[:,1:],t)
             self.w = []
@@ -179,14 +152,7 @@ class Regression:
             self.w = np.append(self.w, reg.coef_)
             
         else:
-            print("Mauvaise valeur de 'using_sklearn', doit etre un booleen.")   
-
-
-        #print(self.w)
-
-
-
-
+            print("Mauvaise valeur de 'using_sklearn', doit etre un booleen.")
         
 
     def prediction(self, x):
@@ -198,7 +164,6 @@ class Regression:
         a prealablement ete appelee. Elle doit utiliser le champs ``self.w``
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
-        # AJOUTER CODE ICI
 
         phi_x =  self.fonction_base_polynomiale(x)
         y = np.dot(np.transpose(self.w),phi_x)
@@ -211,5 +176,4 @@ class Regression:
         Retourne l'erreur de la difference au carre entre
         la cible ``t`` et la prediction ``prediction``.
         """
-        # AJOUTER CODE ICI
         return (t-prediction)**2
