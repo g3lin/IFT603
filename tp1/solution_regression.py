@@ -32,15 +32,15 @@ class Regression:
         if type(x) == np.ndarray:
             phi_x = [[]]
             for elem_x in x:
-                phi_x = np.append(phi_x, [elem_x**np.arange(1, self.M+1)])
+                phi_x = np.append(phi_x, [elem_x**np.arange(0, self.M+1)])
             N = len(x)
-            phi_x.shape = (N,self.M)
+            phi_x.shape = (N,self.M+1)
 
 
 
         else: 
 
-            phi_x = x**np.arange(1, self.M+1)
+            phi_x = x**np.arange(0, self.M+1)
             
 
 
@@ -140,6 +140,7 @@ class Regression:
             phi_x = self.fonction_base_polynomiale(X)
             phi_x_t = np.transpose(phi_x)
             dim_I = phi_x.shape[1]
+            print(dim_I)
             
             
             # self.w = np.dot(((np.dot(phi_x_t,phi_x)+self.lamb)**-1),np.dot(phi_x_t,t))
@@ -147,9 +148,13 @@ class Regression:
             
             membre1 = np.linalg.inv(self.lamb*np.identity(dim_I) + np.dot(phi_x_t,phi_x))
             membre2 = np.dot(phi_x_t,t)
-            self.w = membre1*membre2
+            # print(membre1)
+            # print("\n\n")
+            # print(membre2)
 
-            print(self.w)
+            # w0 manque
+            self.w = np.dot(membre1,membre2)
+
             #np.linalg.solve()
 
 
@@ -162,13 +167,17 @@ class Regression:
             self.w = []
             self.w = np.append(self.w, reg.intercept_)
             self.w = np.append(self.w, reg.coef_)
-            print(self.w)
-
-
-
-
+            
         else:
-            print("Mauvaise valeur de 'using_sklearn', doit etre un booleen.")
+            print("Mauvaise valeur de 'using_sklearn', doit etre un booleen.")   
+
+
+        print(self.w)
+
+
+
+
+        
 
     def prediction(self, x):
         """
@@ -180,9 +189,8 @@ class Regression:
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
         # AJOUTER CODE ICI
-        #phi_x = [1]
-        phi_x=[]
-        phi_x = np.append(phi_x, self.fonction_base_polynomiale(x))
+
+        phi_x =  self.fonction_base_polynomiale(x)
         y = np.dot(np.transpose(self.w),phi_x)
         return y
 
