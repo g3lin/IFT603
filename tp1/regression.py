@@ -21,7 +21,6 @@ def warning(erreur_test, erreur_apprentissage, bruit):
     erreur_apprentissage: erreur obtenue sur l'ensemble d'apprentissage
     bruit: magnitude du bruit
     """
-    # AJOUTER CODE ICI
     
     # erreur apprentissage tres faible, erreur test elevee : sur apprentissage
     # erreur apprentissage elevee, erreur test elevee : sous apprentissage
@@ -31,8 +30,7 @@ def warning(erreur_test, erreur_apprentissage, bruit):
     seuil_sur_app = 0.4
     seuil_ss_test = 0.7
     seuil_ss_app = 0.5
-     
-     
+    
     rapport_test = erreur_test/bruit
     rapport_app = erreur_apprentissage/bruit
     if (rapport_test > seuil_sur_test) and (rapport_app < seuil_sur_app):
