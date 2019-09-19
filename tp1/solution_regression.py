@@ -64,33 +64,43 @@ class Regression:
         erreur_min = float("inf")
         k = 10
 
-        M_min = 0
+        M_min = 1
         M_max = 10
         M_step = 1
         
         l_min = 0
-        l_max = 10
-        l_step = 1
+        l_max = 0.01
+        l_step = 0.001
         
         for M_actuel in range(M_min,M_max,M_step):
-            for lamb_actuel in range(l_min,l_max,l_step):
+            self.M = M_actuel
+            for lamb_actuel in np.arange(l_min,l_max,l_step):
+                self.lamb =  lamb_actuel
+                erreur_moy = 0
+
                 for j in range(0,k):
 
                     X_train, X_valid, t_train, t_valid = train_test_split(X, t, test_size=0.20)
                     self.entrainement(X_train,t_train,True)
 
-                    erreur_moy = 0
-                    for x in X_valid:
-                        pred = self.prediction(x)
-                        erreur_moy = self.erreur(t_valid, pred)
-                    erreur_moy = erreur_moy/len(X_valid)
 
-                    print("M: ",M_actuel,", Lambda = ",lamb_actuel,", j: ",j,", erreur: ",erreur_moy)
+                    for i in range(len(X_valid)):
+                        pred = self.prediction(X_valid[i])
+                        erreur_moy += self.erreur(t_valid[i], pred)
+                    
+                erreur_moy = erreur_moy/len(X_valid)
 
-                    if erreur_moy < erreur_min:
-                        erreur_min = erreur_moy
-                        self.M = M_actuel
-                        self.lamb = lamb_actuel
+                print("M: ",M_actuel,", Lambda = ",lamb_actuel,", erreur: ",erreur_moy)
+
+                if erreur_moy < erreur_min:
+                    erreur_min = erreur_moy
+                    M_final = M_actuel
+                    lamb_final = lamb_actuel
+                    print("Nouveau reccord")
+
+        self.M = M_final
+        self.lamb = lamb_final
+        print("M final = ",M_final,"lamb_final = ", lamb_final)
 
 
         print("M: ",self.M)
@@ -140,7 +150,7 @@ class Regression:
             phi_x = self.fonction_base_polynomiale(X)
             phi_x_t = np.transpose(phi_x)
             dim_I = phi_x.shape[1]
-            print(dim_I)
+            #print(dim_I)
             
             
             # self.w = np.dot(((np.dot(phi_x_t,phi_x)+self.lamb)**-1),np.dot(phi_x_t,t))
@@ -172,7 +182,7 @@ class Regression:
             print("Mauvaise valeur de 'using_sklearn', doit etre un booleen.")   
 
 
-        print(self.w)
+        #print(self.w)
 
 
 
