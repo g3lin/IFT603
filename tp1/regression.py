@@ -22,6 +22,26 @@ def warning(erreur_test, erreur_apprentissage, bruit):
     bruit: magnitude du bruit
     """
     # AJOUTER CODE ICI
+    
+    # erreur apprentissage tres faible, erreur test elevee : sur apprentissage
+    # erreur apprentissage elevee, erreur test elevee : sous apprentissage
+    # deux faibles : correct
+    
+    seuil_sur_test = 1
+    seuil_sur_app = 0.4
+    seuil_ss_test = 0.7
+    seuil_ss_app = 0.5
+     
+     
+    rapport_test = erreur_test/bruit
+    rapport_app = erreur_apprentissage/bruit
+    if (rapport_test > seuil_sur_test) and (rapport_app < seuil_sur_app):
+        print("Warning: Vous êtes probablement en sur-apprentissage")
+    elif (rapport_test > seuil_ss_test) and (rapport_app > seuil_ss_app):
+        print("Warning: Vous êtes probablement en sous-apprentissage")
+
+    print("rapport test :", rapport_test)
+    print("rapport app :", rapport_app)
 
 ################################
 # Execution en tant que script 
