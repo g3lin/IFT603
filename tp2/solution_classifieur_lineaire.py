@@ -72,7 +72,12 @@ class ClassifieurLineaire:
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
-            # AJOUTER CODE ICI
+            clf = Perceptron(penalty='l2',eta0=0.001)
+            clf.fit(x_train,t_train)
+            self.w = clf.coef_[0]
+            self.w_0 = clf.intercept_
+
+
 
         print('w = ', self.w, 'w_0 = ', self.w_0, '\n')
 
