@@ -94,12 +94,9 @@ class ClassifieurLineaire:
             #self.w_0 = -0.5*t(mu_1)*sigma^(-1)*mu_1 + 0.5*t(mu_2)*sigma^(-1)*mu_2 + ln(p(C1)/p(C2))
             self.w_0 = -0.5*np.dot(np.dot(np.transpose(mu_1),np.linalg.inv(sigma)),mu_1) + 0.5*np.dot(np.dot(np.transpose(mu_2),np.linalg.inv(sigma)),mu_2)
             
-            
-            
-
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
-            # AJOUTER CODE ICI
+            
             eta0 = 0.001
             n_iter = 1000
 
@@ -115,8 +112,6 @@ class ClassifieurLineaire:
             self.w = clf.coef_[0]
             self.w_0 = clf.intercept_
 
-
-
         print('w = ', self.w, 'w_0 = ', self.w_0, '\n')
 
     def prediction(self, x):
@@ -130,8 +125,15 @@ class ClassifieurLineaire:
         a préalablement été appelée. Elle doit utiliser les champs ``self.w``
         et ``self.w_0`` afin de faire cette classification.
         """
-        # AJOUTER CODE ICI
-        return 0
+        frontiere = np.dot(self.w, x)
+
+        if(frontiere > 0):
+            x = 1
+        elif(frontiere < 0):
+            x = 0
+        else:
+            print("Le point x est sur la frontiere")
+        return x
 
     @staticmethod
     def erreur(t, prediction):
