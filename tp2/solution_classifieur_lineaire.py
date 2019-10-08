@@ -128,12 +128,12 @@ class ClassifieurLineaire:
         frontiere = np.dot(self.w, x)
 
         if(frontiere > 0):
-            x = 1
+            y = 1
         elif(frontiere < 0):
-            x = 0
+            y = 0
         else:
             print("Le point x est sur la frontiere")
-        return x
+        return y
 
     @staticmethod
     def erreur(t, prediction):
