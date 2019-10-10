@@ -96,7 +96,10 @@ class ClassifieurLineaire:
             
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
-            
+            x_train = np.append(x_train, [[-1]]*len(x_train), axis=1)
+            t_train = np.where(t_train==0, -1, t_train)
+            self.w = np.zeros(len(x_train[0]))
+
             eta0 = 0.001
             n_iter = 1000
 
@@ -104,6 +107,12 @@ class ClassifieurLineaire:
                 for i, x in enumerate(x_train):
                     if(np.dot(x_train[i], self.w) * t_train[i]) <= 0:
                         self.w = self.w + eta0 * x_train[i] * t_train[i]
+            
+            self.w_0 = - self.w[-1] + 0.15
+
+            x_train = np.delete(x_train, 2, 1)
+            t_train = np.where(t_train==-1, 0, t_train)
+            self.w = np.delete(self.w, -1, 0)
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
