@@ -72,30 +72,52 @@ class ClassifieurLineaire:
             N1 = sum(t_train)
             N2 = N-N1
             p = N1/N
+            print("t_train : ",t_train)
+            print("x_train ",x_train)
             
             #mu_1 = 1/N1*sum(tn*xn)
-            mu_1 = 1/N1*sum(np.dot(t_train,x_train))
+            mu_1=0
+            for n in range(len(t_train)):
+                if t_train[n]==1:
+                    mu_1 += t_train[n]*x_train[n]
+            mu_1=1/N1*mu_1
+            print("mu1 :", mu_1)
             
             #mu_2 = 1/N2*sum((1-tn)*xn)
-            mu_2 = 1/N2*sum(np.dot((1-t_train),x_train))
+            mu_2=0
+            for n in range(len(t_train)):
+                if t_train[n]==0:
+                    mu_2 += t_train[n]*x_train[n]
+            mu_2=1/N2*mu_2
 
             #S1 = 1/N1*sum(xn-mu_1)*t(xn-mu_1)
-            S1 = 1/N1*sum(np.dot((x_train-mu_1),np.transpose(x_train-mu_1)))
+            S1 = 0
+            for n in range(len(x_train)):
+                S1 += np.dot((x_train[n]-mu_1),np.transpose(x_train[n]-mu_1))
+            S1 = 1/N1*S1
+            print("S1 : ", S1)
             
             #S2 = 1/N2*sum(xn-mu_2))*t(xn-mu_2))
-            S2 = 1/N2*sum(np.dot((x_train-mu_2),np.transpose(x_train-mu_2)))
+            S2 = 0
+            for n in range(len(x_train)):
+                S2 += np.dot((x_train[n]-mu_2),np.transpose(x_train[n]-mu_2))
+            S2 = 1/N2*S2
+
 
             #sigma = N1/N*S1 + N2/N*S2
             sigma = N1/N*S1 + N2/N*S2
+            print("sigma : ", sigma)
             
             #self.w = sigma^(-1)*(mu_1-mu_2)
-            self.w = np.dot(np.linalg.inv(sigma),(mu_1-mu_2))
+            self.w = 1/sigma*(mu_1 - mu_2)
             
             #self.w_0 = -0.5*t(mu_1)*sigma^(-1)*mu_1 + 0.5*t(mu_2)*sigma^(-1)*mu_2 + ln(p(C1)/p(C2))
-            self.w_0 = -0.5*np.dot(np.dot(np.transpose(mu_1),np.linalg.inv(sigma)),mu_1) + 0.5*np.dot(np.dot(np.transpose(mu_2),np.linalg.inv(sigma)),mu_2)
+            self.w_0 = -0.5*np.dot(1/sigma*np.transpose(mu_1),mu_1) + 0.5*np.dot(1/sigma*np.transpose(mu_2),mu_2)
+
             
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
+
             x_train = np.append(x_train, [[-1]]*len(x_train), axis=1)
             t_train = np.where(t_train==0, -1, t_train)
             self.w = np.zeros(len(x_train[0]))
