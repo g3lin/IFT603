@@ -117,7 +117,7 @@ class ClassifieurLineaire:
             
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
-            
+            #self.w_0 = 0.05
             eta0 = 0.001
             n_iter = 1000
 
@@ -125,6 +125,7 @@ class ClassifieurLineaire:
                 for i, x in enumerate(x_train):
                     if(np.dot(x_train[i], self.w) * t_train[i]) <= 0:
                         self.w = self.w + eta0 * x_train[i] * t_train[i]
+            print("w :", self.w)
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
