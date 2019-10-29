@@ -55,7 +55,7 @@ class MAPnoyau:
         #AJOUTER CODE ICI
         
         K = phi*np.transpose(phi) # matrice de Gram
-        self.a = np.dot(np.transpose(K+λ*I),t_train)
+        self.a = np.dot(np.transpose(K+self.lamb*I),t_train)
         
         if self.noyau == 'rbf':
             k(x1,x2)=exp⁡(-abs(x1−x2)**2/(2*self.sigma_square))
@@ -64,10 +64,10 @@ class MAPnoyau:
             k(x1,x2) = np.dot(np.transpose(x1),x2)
         
         elif self.noyau == 'polynomial':
-            k(x1,x2) = (np.dot(np.transpose(x1),x2)+c)**self.M
+            k(x1,x2) = (np.dot(np.transpose(x1),x2)+self.c)**self.M
         
         elif self.noyau == 'sigmoidal':
-            k(x1,x2) = np.tanh(b*np.dot(np.transpose(x1),x2)+d)
+            k(x1,x2) = np.tanh(self.b*np.dot(np.transpose(x1),x2)+self.d)
         
     def prediction(self, x):
         """
