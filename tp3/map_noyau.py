@@ -19,7 +19,7 @@ class MAPnoyau:
         sigma_square: paramètre du noyau rbf
         b, d: paramètres du noyau sigmoidal
         M,c: paramètres du noyau polynomial
-        noyau: rbf, lineaire, olynomial ou sigmoidal
+        noyau: rbf, lineaire, polynomial ou sigmoidal
         """
         self.lamb = lamb
         self.a = None
@@ -54,20 +54,20 @@ class MAPnoyau:
         """
         #AJOUTER CODE ICI
         
-        K = phi*np.transpose(phi) # matrice de Gram
-        self.a = np.dot(np.transpose(K+self.lamb*I),t_train)
-        
         if self.noyau == 'rbf':
-            k(x1,x2)=exp⁡(-abs(x1−x2)**2/(2*self.sigma_square))
+            K = exp⁡(-abs(x1−x2)**2/(2*self.sigma_square))
         
         elif self.noyau == 'lineaire':
-            k(x1,x2) = np.dot(np.transpose(x1),x2)
+            K = np.dot(np.transpose(x1),x2)
         
         elif self.noyau == 'polynomial':
-            k(x1,x2) = (np.dot(np.transpose(x1),x2)+self.c)**self.M
+            K = (np.dot(np.transpose(x1),x2)+self.c)**self.M
         
         elif self.noyau == 'sigmoidal':
-            k(x1,x2) = np.tanh(self.b*np.dot(np.transpose(x1),x2)+self.d)
+            K = np.tanh(self.b*np.dot(np.transpose(x1),x2)+self.d)
+        
+        #K = phi*np.transpose(phi) # matrice de Gram
+        self.a = np.dot(np.transpose(K+self.lamb*I),t_train)
         
     def prediction(self, x):
         """
