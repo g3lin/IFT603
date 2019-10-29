@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 #####
-# Vos Noms (VosMatricules) .~= À MODIFIER =~.
+# Lauren Picard 19 159 731
+# Julien Brosseau 19 124 617
+# Antoine Gelin 19 146 158
 ####
 
 import numpy as np
@@ -113,19 +115,30 @@ class ClassifieurLineaire:
             
             #self.w_0 = -0.5*t(mu_1)*sigma^(-1)*mu_1 + 0.5*t(mu_2)*sigma^(-1)*mu_2 + ln(p(C1)/p(C2))
             self.w_0 = -0.5*np.dot(1/sigma*np.transpose(mu_1),mu_1) + 0.5*np.dot(1/sigma*np.transpose(mu_2),mu_2)
-
             
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
-            #self.w_0 = 0.05
+
             eta0 = 0.001
             n_iter = 1000
+            keep_going = True
+            
+            for i in range(n_iter):
+                predict = np.array([self.prediction(x) for x in x_train])
+                error_predict = np.array([self.erreur(t, pred) for t, pred in zip(t_train, predict)])
+                
+                if np.sum(error_predict) == 0 and keep_going == True:
+                    print("Methode 2 : Plus aucune erreur de prediction")
+                    keep_going = False
+                
+                if keep_going == True:
+                    error_matrix = np.repeat(error_predict, len(x_train[0])).reshape(len(x_train), len(x_train[0]))
 
-            for i in np.nditer(n_iter):
-                for i, x in enumerate(x_train):
-                    if(np.dot(x_train[i], self.w) * t_train[i]) <= 0:
-                        self.w = self.w + eta0 * x_train[i] * t_train[i]
-            print("w :", self.w)
+                    grad_w = np.sum(error_matrix * x_train)
+                    grad_w0 = np.sum(error_predict)
+                    
+                    self.w += eta0 * grad_w
+                    self.w_0 += eta0 * grad_w0
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
@@ -147,7 +160,7 @@ class ClassifieurLineaire:
         a préalablement été appelée. Elle doit utiliser les champs ``self.w``
         et ``self.w_0`` afin de faire cette classification.
         """
-        frontiere = np.dot(self.w, x)
+        frontiere = self.w_0 + np.dot(self.w, x)
 
         if(frontiere > 0):
             y = 1
