@@ -54,20 +54,26 @@ class MAPnoyau:
         """
         #AJOUTER CODE ICI
         
-        if self.noyau == 'rbf':
-            K = exp⁡(-abs(x1−x2)**2/(2*self.sigma_square))
+        K = np.zeros((x_train[:,0].size,x_train[0,:].size))
         
+        if self.noyau == 'rbf':
+            for i in range(x_train[:,0].size):
+                for j in range(x_train[0,:].size):
+                    K[i][j] = np.exp(-np.linalg.norm(x_train[i]-x_train[j])**2/(2*self.sigma_square))
+                print("K :",K)
+        """
         elif self.noyau == 'lineaire':
-            K = np.dot(np.transpose(x1),x2)
+            k(x1,x2) = np.dot(np.transpose(x1),x2)
         
         elif self.noyau == 'polynomial':
-            K = (np.dot(np.transpose(x1),x2)+self.c)**self.M
+            k(x1,x2) = (np.dot(np.transpose(x1),x2)+self.c)**self.M
         
         elif self.noyau == 'sigmoidal':
-            K = np.tanh(self.b*np.dot(np.transpose(x1),x2)+self.d)
+            k(x1,x2) = np.tanh(self.b*np.dot(np.transpose(x1),x2)+self.d)
         
-        #K = phi*np.transpose(phi) # matrice de Gram
-        self.a = np.dot(np.transpose(K+self.lamb*I),t_train)
+        #K = phi*np.transpose(phi) # matrice de Gram"""
+        self.a = np.dot(np.transpose(K+self.lamb*np.identity),t_train)
+        self.x_train = x_train
         
     def prediction(self, x):
         """

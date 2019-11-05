@@ -49,7 +49,7 @@ def main():
         mp.entrainement(x_train, t_train)
     else:
         mp.validation_croisee(x_train, t_train)
-
+        
     # ~= À MODIFIER =~. 
     # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
     # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
