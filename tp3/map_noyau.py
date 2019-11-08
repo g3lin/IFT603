@@ -62,7 +62,6 @@ class MAPnoyau:
         l'equation 6.8 du livre de Bishop et garder en mémoire les données
         d'apprentissage dans ``self.x_train``
         """
-        #AJOUTER CODE ICI
         
         K = np.zeros((x_train[:,0].size,x_train[0,:].size))
         
@@ -108,7 +107,6 @@ class MAPnoyau:
         classification binaire, la prediction est +1 lorsque y(x)>0.5 et 0
         sinon
         """
-        #AJOUTER CODE ICI
         sum=0
         if self.noyau == "rbf":
             for i in range(self.x_train[:,0].size):
@@ -137,7 +135,7 @@ class MAPnoyau:
         la cible ``t`` et la prédiction ``prediction``.
         """
         # AJOUTER CODE ICI
-        return 0.
+        return (t-prediction)**2
 
     def validation_croisee(self, x_tab, t_tab):
         """
