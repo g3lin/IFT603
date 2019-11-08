@@ -8,6 +8,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 
 class MAPnoyau:
@@ -149,7 +150,71 @@ class MAPnoyau:
         de 0.000000001 à 2, les valeurs de ``self.c`` de 0 à 5, les valeurs
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
-        # AJOUTER CODE ICI
+        print("recherche d'HP")
+
+        erreur_min = float("inf")
+        k = 1
+
+        M_min = 2
+        M_max = 6
+        M_step = 0.5
+        
+        l_min = 0.000000001
+        l_max = 2
+        l_step = 0.01
+        
+        c_min = 0
+        c_max = 5
+        c_step = 0.5
+        
+        sigma_min = 0.000000001
+        sigma_max = 2
+        sigma_step = 0.01
+        
+        
+        for M_actuel in range(M_min,M_max,M_step):
+            self.M = M_actuel
+            for lamb_actuel in np.arange(l_min,l_max,l_step):
+                self.lamb =  lamb_actuel
+                for c_actuel in range(c_min,c_max,c_step):
+                    self.c = c_actuel
+                    for sigma_actuel in range(sigma_min,sigma_max,sigma_step):
+                        self.sigma_square = sigma_actuel
+                        erreur_moy = 0
+        
+                        for j in range(0,k+1):
+        
+                            X_train, X_valid, t_train, t_valid = train_test_split(x_tab, t_tab, test_size=0.20)
+                            self.entrainement(X_train,t_train,True)
+        
+        
+                            for i in range(len(X_valid)):
+                                pred = self.prediction(X_valid[i])
+                                erreur_moy += self.erreur(t_valid[i], pred)
+                            
+                        erreur_moy = erreur_moy/len(X_valid)
+        
+                        print("M = ",M_actuel,", Lambda = ",lamb_actuel,"c = ",c_actuel,"sigma_square = ",sigma_actuel,"erreur: ",erreur_moy)
+        
+                        if erreur_moy < erreur_min:
+                            erreur_min = erreur_moy
+                            M_final = M_actuel
+                            lamb_final = lamb_actuel
+                            c_final = c_actuel
+                            sigma_final = sigma_actuel
+                            print("Nouveau reccord")
+
+        self.M = M_final
+        self.lamb = lamb_final
+        self.c = c_final
+        self.sigma_square = sigma_final
+        print("M final = ",M_final,"lamb_final = ", lamb_final, "c final = ",c_final, "sigma_square final = ",sigma_final)
+
+
+        print("M: ",self.M)
+        print("lanbda: ",self.lamb)
+        print("c: ",self.c)
+        print("sigma_square: ",self.sigma_square)
 
     def affichage(self, x_tab, t_tab):
 
