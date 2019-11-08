@@ -19,7 +19,23 @@ def analyse_erreur(err_train, err_test):
     Fonction qui affiche un WARNING lorsqu'il y a apparence de sur ou de sous
     apprentissage
     """
-    #AJOUTER CODE ICI
+        # erreur apprentissage tres faible, erreur test elevee : sur apprentissage
+    # erreur apprentissage elevee, erreur test elevee : sous apprentissage
+    # deux faibles : correct
+    
+    #changer les valeurs en fonction de ce que ça donne car copier coller du tp1
+    seuil_sur_test = 1
+    seuil_sur_train = 0.4
+    seuil_ss_test = 0.7
+    seuil_ss_train = 0.5
+    
+    if (err_test > seuil_sur_test) and (err_train < seuil_sur_train):
+        print("Warning: Vous êtes probablement en sur-apprentissage")
+    elif (err_test > seuil_ss_test) and (err_train > seuil_ss_train):
+        print("Warning: Vous êtes probablement en sous-apprentissage")
+
+    print("err_test :", err_test)
+    print("err_train :", err_train)
 
 def main():
 
