@@ -31,7 +31,17 @@ class MAPnoyau:
         self.noyau = noyau
         self.x_train = None
 
-        
+    def noyau_rbf(self,x1,x2):
+        return np.exp(-np.linalg.norm(x1-x2)**2/(2*self.sigma_square))
+
+    def noyau_lineaire(self,x1,x2):
+        return np.dot(np.transpose(x1,x2))
+    
+    def noyau_poly(self,x1,x2):
+        return (np.dot(np.transpose(x1),x2)+self.c)**self.M
+    
+    def noyau_sigmoidal(self,x1,x2):
+        return np.tanh(self.b*np.dot(np.transpose(x1),x2)+self.d)
 
     def entrainement(self, x_train, t_train):
         """
@@ -59,19 +69,29 @@ class MAPnoyau:
         if self.noyau == 'rbf':
             for i in range(x_train[:,0].size):
                 for j in range(x_train[0,:].size):
-                    K[i][j] = np.exp(-np.linalg.norm(x_train[i]-x_train[j])**2/(2*self.sigma_square))
+                    K[i][j] = self.noyau_rbf(x_train[i],x_train[j])
                 print("K :",K)
-        """
+        
         elif self.noyau == 'lineaire':
-            k(x1,x2) = np.dot(np.transpose(x1),x2)
+            for i in range(x_train[:,0].size):
+                for j in range(x_train[0,:].size):
+                    K[i][j] = self.noyau_lineaire(x_train[i],x_train[j])
+                print("K :",K)
         
         elif self.noyau == 'polynomial':
-            k(x1,x2) = (np.dot(np.transpose(x1),x2)+self.c)**self.M
-        
+            for i in range(x_train[:,0].size):
+                for j in range(x_train[0,:].size):
+                    K[i][j] = self.noyau_poly(x_train[i],x_train[j])
+                print("K :",K)
+                
         elif self.noyau == 'sigmoidal':
-            k(x1,x2) = np.tanh(self.b*np.dot(np.transpose(x1),x2)+self.d)
+            for i in range(x_train[:,0].size):
+                for j in range(x_train[0,:].size):
+                    K[i][j] = self.noyau_sigmoidal(x_train[i],x_train[j])
+                print("K :",K)
+
         
-        #K = phi*np.transpose(phi) # matrice de Gram"""
+        #K = phi*np.transpose(phi) # matrice de Gram
         self.a = np.dot(np.transpose(K+self.lamb*np.identity),t_train)
         self.x_train = x_train
         
@@ -89,7 +109,27 @@ class MAPnoyau:
         sinon
         """
         #AJOUTER CODE ICI
-        return 0
+        sum=0
+        if self.noyau == "rbf":
+            for i in range(self.x_train[:,0].size):
+                sum += np.dot(self.noyau_rbf(x,self.x_train[i]),self.a) #p18 cours methodes a noyau
+        
+        elif self.noyau == "lineaire":
+            for i in range(self.x_train[:,0].size):
+                sum += np.dot(self.noyau_linaire(x,self.x_train[i]),self.a)
+                
+        elif self.noyau == "polynoial":
+            for i in range(self.x_train[:,0].size):
+                sum += np.dot(self.noyau_poly(x,self.x_train[i]),self.a)
+            
+        elif self.noyau == "sigmoidal":
+            for i in range(self.x_train[:,0].size):
+                sum += np.dot(self.noyau_sigmoidal(x,self.x_train[i]),self.a)
+                
+        if sum > 0.5:
+            return 1
+        else:
+            return 0
 
     def erreur(self, t, prediction):
         """
