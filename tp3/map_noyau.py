@@ -63,7 +63,7 @@ class MAPnoyau:
         l'equation 6.8 du livre de Bishop et garder en mémoire les données
         d'apprentissage dans ``self.x_train``
         """
-        
+
         K = np.zeros((x_train[:,0].size,x_train[0,:].size))
         
         if self.noyau == 'rbf':

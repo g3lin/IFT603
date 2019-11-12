@@ -53,7 +53,7 @@ def main():
     nb_test = int(sys.argv[3])
     lin_sep = int(sys.argv[4])
     vc = bool(int(sys.argv[5]))
-
+    
     # On génère les données d'entraînement et de test
     generateur_donnees = gd.GestionDonnees(nb_train, nb_test, lin_sep)
     [x_train, t_train, x_test, t_test] = generateur_donnees.generer_donnees()
