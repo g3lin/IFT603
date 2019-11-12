@@ -172,20 +172,20 @@ class MAPnoyau:
         sigma_step = 0.01
         
         
-        for M_actuel in range(M_min,M_max,M_step):
+        for M_actuel in np.arange(M_min,M_max,M_step):
             self.M = M_actuel
             for lamb_actuel in np.arange(l_min,l_max,l_step):
                 self.lamb =  lamb_actuel
-                for c_actuel in range(c_min,c_max,c_step):
+                for c_actuel in np.arange(c_min,c_max,c_step):
                     self.c = c_actuel
-                    for sigma_actuel in range(sigma_min,sigma_max,sigma_step):
+                    for sigma_actuel in np.arange(sigma_min,sigma_max,sigma_step):
                         self.sigma_square = sigma_actuel
                         erreur_moy = 0
         
                         for j in range(0,k+1):
         
                             X_train, X_valid, t_train, t_valid = train_test_split(x_tab, t_tab, test_size=0.20)
-                            self.entrainement(X_train,t_train,True)
+                            self.entrainement(X_train,t_train)
         
         
                             for i in range(len(X_valid)):
