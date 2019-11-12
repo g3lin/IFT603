@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 #####
-# VotreNom (VotreMatricule) .~= À MODIFIER =~.
+# Lauren Picard 19 159 731
+# Julien Brosseau 19 124 617
+# Antoine Gelin 19 146 158
 ###
 
 import numpy as np
