@@ -36,7 +36,7 @@ class MAPnoyau:
         return np.exp(-np.linalg.norm(x1-x2)**2/(2*self.sigma_square))
 
     def noyau_lineaire(self,x1,x2):
-        return np.dot(np.transpose(x1,x2))
+        return np.dot(np.transpose(x1),x2)
     
     def noyau_poly(self,x1,x2):
         return (np.dot(np.transpose(x1),x2)+self.c)**self.M
@@ -64,35 +64,32 @@ class MAPnoyau:
         d'apprentissage dans ``self.x_train``
         """
 
-        K = np.zeros((x_train[:,0].size,x_train[0,:].size))
+        K = np.zeros((t_train.size,t_train.size))
         
         if self.noyau == 'rbf':
             for i in range(x_train[:,0].size):
                 for j in range(x_train[0,:].size):
                     K[i][j] = self.noyau_rbf(x_train[i],x_train[j])
-                print("K :",K)
         
         elif self.noyau == 'lineaire':
             for i in range(x_train[:,0].size):
                 for j in range(x_train[0,:].size):
                     K[i][j] = self.noyau_lineaire(x_train[i],x_train[j])
-                print("K :",K)
         
         elif self.noyau == 'polynomial':
             for i in range(x_train[:,0].size):
                 for j in range(x_train[0,:].size):
                     K[i][j] = self.noyau_poly(x_train[i],x_train[j])
-                print("K :",K)
-                
+                    
         elif self.noyau == 'sigmoidal':
             for i in range(x_train[:,0].size):
                 for j in range(x_train[0,:].size):
                     K[i][j] = self.noyau_sigmoidal(x_train[i],x_train[j])
-                print("K :",K)
 
         
         #K = phi*np.transpose(phi) # matrice de Gram
-        self.a = np.dot(np.transpose(K+self.lamb*np.identity),t_train)
+        #print()
+        self.a = np.dot(np.transpose(K+self.lamb*np.identity(K[:,0].size)),t_train)
         self.x_train = x_train
         
     def prediction(self, x):
@@ -111,20 +108,20 @@ class MAPnoyau:
         sum=0
         if self.noyau == "rbf":
             for i in range(self.x_train[:,0].size):
-                sum += np.dot(self.noyau_rbf(x,self.x_train[i]),self.a) #p18 cours methodes a noyau
+                sum += self.noyau_rbf(x,self.x_train[i])*self.a[i] #p18 cours methodes a noyau
         
         elif self.noyau == "lineaire":
             for i in range(self.x_train[:,0].size):
-                sum += np.dot(self.noyau_linaire(x,self.x_train[i]),self.a)
+                sum += self.noyau_lineaire(x,self.x_train[i])*self.a[i]
                 
         elif self.noyau == "polynoial":
             for i in range(self.x_train[:,0].size):
-                sum += np.dot(self.noyau_poly(x,self.x_train[i]),self.a)
+                sum += self.noyau_poly(x,self.x_train[i])*self.a[i]
             
         elif self.noyau == "sigmoidal":
             for i in range(self.x_train[:,0].size):
-                sum += np.dot(self.noyau_sigmoidal(x,self.x_train[i]),self.a)
-                
+                sum += self.noyau_sigmoidal(x,self.x_train[i])*self.a[i]
+        print("sum ", sum)
         if sum > 0.5:
             return 1
         else:
@@ -135,7 +132,6 @@ class MAPnoyau:
         Retourne la différence au carré entre
         la cible ``t`` et la prédiction ``prediction``.
         """
-        # AJOUTER CODE ICI
         return (t-prediction)**2
 
     def validation_croisee(self, x_tab, t_tab):
@@ -157,19 +153,19 @@ class MAPnoyau:
 
         M_min = 2
         M_max = 6
-        M_step = 0.5
+        M_step = 1
         
         l_min = 0.000000001
         l_max = 2
-        l_step = 0.01
+        l_step = 0.1
         
         c_min = 0
         c_max = 5
-        c_step = 0.5
+        c_step = 1
         
         sigma_min = 0.000000001
         sigma_max = 2
-        sigma_step = 0.01
+        sigma_step = 0.1
         
         
         for M_actuel in np.arange(M_min,M_max,M_step):
@@ -194,7 +190,7 @@ class MAPnoyau:
                             
                         erreur_moy = erreur_moy/len(X_valid)
         
-                        print("M = ",M_actuel,", Lambda = ",lamb_actuel,"c = ",c_actuel,"sigma_square = ",sigma_actuel,"erreur: ",erreur_moy)
+                        #print("M = ",M_actuel,", Lambda = ",lamb_actuel,"c = ",c_actuel,"sigma_square = ",sigma_actuel,"erreur: ",erreur_moy)
         
                         if erreur_moy < erreur_min:
                             erreur_min = erreur_moy
@@ -202,7 +198,7 @@ class MAPnoyau:
                             lamb_final = lamb_actuel
                             c_final = c_actuel
                             sigma_final = sigma_actuel
-                            print("Nouveau reccord")
+                            #print("Nouveau record")
 
         self.M = M_final
         self.lamb = lamb_final
