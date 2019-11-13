@@ -115,7 +115,7 @@ class MAPnoyau:
             for i in range(self.x_train[:,0].size):
                 sum += self.noyau_lineaire(x,self.x_train[i])*self.a[i]
                 
-        elif self.noyau == "polynoial":
+        elif self.noyau == "polynomial":
             for i in range(self.x_train[:,0].size):
                 sum += self.noyau_poly(x,self.x_train[i])*self.a[i]
             
@@ -154,11 +154,11 @@ class MAPnoyau:
 
         M_min = 2
         M_max = 6
-        M_step = 0.1
+        M_step = 1
         
         l_min = 0.000000001
         l_max = 2
-        l_step = 0.1
+        l_step = 0.2
 
         b_min = 0.00001
         b_max = 0.01
@@ -174,7 +174,7 @@ class MAPnoyau:
         
         sigma_min = 0.000000001
         sigma_max = 2
-        sigma_step = 0.1
+        sigma_step = 0.05
 
         def erreur_moyenne(self, x_tab, t_tab):
             erreur_moy = 0
