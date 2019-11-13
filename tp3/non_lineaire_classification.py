@@ -19,15 +19,15 @@ def analyse_erreur(err_train, err_test):
     Fonction qui affiche un WARNING lorsqu'il y a apparence de sur ou de sous
     apprentissage
     """
-        # erreur apprentissage tres faible, erreur test elevee : sur apprentissage
+    # erreur apprentissage tres faible, erreur test elevee : sur apprentissage
     # erreur apprentissage elevee, erreur test elevee : sous apprentissage
     # deux faibles : correct
     
     #changer les valeurs en fonction de ce que ça donne car copier coller du tp1
-    seuil_sur_test = 1
-    seuil_sur_train = 0.4
-    seuil_ss_test = 0.7
-    seuil_ss_train = 0.5
+    seuil_sur_test = 20
+    seuil_sur_train = 5
+    seuil_ss_test = 20
+    seuil_ss_train = 20
     
     if (err_test > seuil_sur_test) and (err_train < seuil_sur_train):
         print("Warning: Vous êtes probablement en sur-apprentissage")
@@ -66,9 +66,6 @@ def main():
     else:
         mp.validation_croisee(x_train, t_train)
         
-    # ~= À MODIFIER =~. 
-    # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
-    # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
     predictions_entrainement = np.array([mp.prediction(x) for x in x_train])
     err_train = 100*np.sum(np.abs(predictions_entrainement-t_train))/len(t_train)
 

@@ -151,6 +151,7 @@ class MAPnoyau:
 
         erreur_moy = []
         new_hyperparametres = []
+        k = 1
 
         M_min = 2
         M_max = 6
@@ -179,12 +180,13 @@ class MAPnoyau:
         def erreur_moyenne(self, x_tab, t_tab):
             erreur_moy = 0
 
-            X_train, X_valid, t_train, t_valid = train_test_split(x_tab, t_tab, test_size=0.20)
-            self.entrainement(X_train,t_train)
-            
-            for i in range(len(X_valid)):
-                pred = self.prediction(X_valid[i])
-                erreur_moy += self.erreur(t_valid[i], pred)
+            for j in range(k):
+                X_train, X_valid, t_train, t_valid = train_test_split(x_tab, t_tab, test_size=0.20)
+                self.entrainement(X_train,t_train)
+                
+                for i in range(len(X_valid)):
+                    pred = self.prediction(X_valid[i])
+                    erreur_moy += self.erreur(t_valid[i], pred)
             
             return erreur_moy/len(X_valid)
         
@@ -220,6 +222,8 @@ class MAPnoyau:
                         new_hyperparametres.append((lamb_actuel, b_actuel, d_actuel))
             self.lamb, self.b, self.d = new_hyperparametres[np.argmin(erreur_moy)]
             print("Lambda :", self.lamb, "| B :", self.b, "| D:", self.d)
+
+        self.entrainement(x_tab, t_tab)
 
     def affichage(self, x_tab, t_tab):
 
