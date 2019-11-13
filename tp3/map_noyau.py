@@ -64,32 +64,33 @@ class MAPnoyau:
         d'apprentissage dans ``self.x_train``
         """
 
-        K = np.zeros((t_train.size,t_train.size))
-        
+        K = np.zeros((x_train[:,0].size, x_train[:,0].size))
+        #K = np.zeros((t_train.size,t_train.size))
+
         if self.noyau == 'rbf':
             for i in range(x_train[:,0].size):
-                for j in range(x_train[0,:].size):
+                for j in range(x_train[:,0].size):
                     K[i][j] = self.noyau_rbf(x_train[i],x_train[j])
-        
+
         elif self.noyau == 'lineaire':
             for i in range(x_train[:,0].size):
-                for j in range(x_train[0,:].size):
+                for j in range(x_train[:,0].size):
                     K[i][j] = self.noyau_lineaire(x_train[i],x_train[j])
         
         elif self.noyau == 'polynomial':
             for i in range(x_train[:,0].size):
-                for j in range(x_train[0,:].size):
+                for j in range(x_train[:,0].size):
                     K[i][j] = self.noyau_poly(x_train[i],x_train[j])
                     
         elif self.noyau == 'sigmoidal':
             for i in range(x_train[:,0].size):
-                for j in range(x_train[0,:].size):
+                for j in range(x_train[:,0].size):
                     K[i][j] = self.noyau_sigmoidal(x_train[i],x_train[j])
 
         
         #K = phi*np.transpose(phi) # matrice de Gram
         #print()
-        self.a = np.dot(np.transpose(K+self.lamb*np.identity(K[:,0].size)),t_train)
+        self.a = np.dot(np.linalg.inv(K+self.lamb*np.identity(K[:,0].size)),t_train)
         self.x_train = x_train
         
     def prediction(self, x):
@@ -121,7 +122,7 @@ class MAPnoyau:
         elif self.noyau == "sigmoidal":
             for i in range(self.x_train[:,0].size):
                 sum += self.noyau_sigmoidal(x,self.x_train[i])*self.a[i]
-        print("sum ", sum)
+        #print("sum ", sum)
         if sum > 0.5:
             return 1
         else:
@@ -146,71 +147,79 @@ class MAPnoyau:
         de 0.000000001 à 2, les valeurs de ``self.c`` de 0 à 5, les valeurs
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
-        print("recherche d'HP")
+        print("Recherche d'hyperparametres")
 
-        erreur_min = float("inf")
-        k = 1
+        erreur_moy = []
+        new_hyperparametres = []
 
         M_min = 2
         M_max = 6
-        M_step = 1
+        M_step = 0.1
         
         l_min = 0.000000001
         l_max = 2
         l_step = 0.1
+
+        b_min = 0.00001
+        b_max = 0.01
+        b_step = 0.001
         
         c_min = 0
         c_max = 5
-        c_step = 1
+        c_step = 0.1
+
+        d_min = 0.00001
+        d_max = 0.01
+        d_step = 0.001
         
         sigma_min = 0.000000001
         sigma_max = 2
         sigma_step = 0.1
+
+        def erreur_moyenne(self, x_tab, t_tab):
+            erreur_moy = 0
+
+            X_train, X_valid, t_train, t_valid = train_test_split(x_tab, t_tab, test_size=0.20)
+            self.entrainement(X_train,t_train)
+            
+            for i in range(len(X_valid)):
+                pred = self.prediction(X_valid[i])
+                erreur_moy += self.erreur(t_valid[i], pred)
+            
+            return erreur_moy/len(X_valid)
         
-        
-        for M_actuel in np.arange(M_min,M_max,M_step):
-            self.M = M_actuel
+        if self.noyau == "rbf":
             for lamb_actuel in np.arange(l_min,l_max,l_step):
-                self.lamb =  lamb_actuel
+                for sigma_actuel in np.arange(sigma_min,sigma_max,sigma_step):
+                    erreur_moy.append(erreur_moyenne(self, x_tab, t_tab))
+                    new_hyperparametres.append((lamb_actuel, sigma_actuel))
+            self.lamb, self.sigma_square = new_hyperparametres[np.argmin(erreur_moy)]
+            print("Lambda :", self.lamb, "| Sigma :", self.sigma_square)
+        
+        if self.noyau == "lineaire":
+            for lamb_actuel in np.arange(l_min,l_max,l_step):
+                erreur_moy.append(erreur_moyenne(self, x_tab, t_tab))
+                new_hyperparametres.append((lamb_actuel))
+            self.lamb = new_hyperparametres[np.argmin(erreur_moy)]
+            print("Lambda :", self.lamb)
+        
+        if self.noyau == "polynomial":
+            for lamb_actuel in np.arange(l_min,l_max,l_step):
                 for c_actuel in np.arange(c_min,c_max,c_step):
-                    self.c = c_actuel
-                    for sigma_actuel in np.arange(sigma_min,sigma_max,sigma_step):
-                        self.sigma_square = sigma_actuel
-                        erreur_moy = 0
+                    for M_actuel in np.arange(M_min,M_max,M_step):
+                        erreur_moy.append(erreur_moyenne(self, x_tab, t_tab))
+                        new_hyperparametres.append((lamb_actuel, c_actuel, M_actuel))
+            self.lamb, self.c, self.M = new_hyperparametres[np.argmin(erreur_moy)]
+            print("Lambda :", self.lamb, "| C :", self.c, "| M :", self.M)
         
-                        for j in range(0,k+1):
-        
-                            X_train, X_valid, t_train, t_valid = train_test_split(x_tab, t_tab, test_size=0.20)
-                            self.entrainement(X_train,t_train)
-        
-        
-                            for i in range(len(X_valid)):
-                                pred = self.prediction(X_valid[i])
-                                erreur_moy += self.erreur(t_valid[i], pred)
-                            
-                        erreur_moy = erreur_moy/len(X_valid)
-        
-                        #print("M = ",M_actuel,", Lambda = ",lamb_actuel,"c = ",c_actuel,"sigma_square = ",sigma_actuel,"erreur: ",erreur_moy)
-        
-                        if erreur_moy < erreur_min:
-                            erreur_min = erreur_moy
-                            M_final = M_actuel
-                            lamb_final = lamb_actuel
-                            c_final = c_actuel
-                            sigma_final = sigma_actuel
-                            #print("Nouveau record")
-
-        self.M = M_final
-        self.lamb = lamb_final
-        self.c = c_final
-        self.sigma_square = sigma_final
-        print("M final = ",M_final,"lamb_final = ", lamb_final, "c final = ",c_final, "sigma_square final = ",sigma_final)
-
-
-        print("M: ",self.M)
-        print("lanbda: ",self.lamb)
-        print("c: ",self.c)
-        print("sigma_square: ",self.sigma_square)
+        if self.noyau == "sigmoidal":
+            for lamb_actuel in np.arange(l_min,l_max,l_step):
+                for b_actuel in np.arange(b_min, b_max, b_step):
+                    for d_actuel in np.arange(d_min, d_max, d_step):
+                        erreur_moy.append(erreur_moyenne(self, x_tab, t_tab))
+                        new_hyperparametres.append((lamb_actuel, b_actuel, d_actuel))
+            self.lamb, self.b, self.d = new_hyperparametres[np.argmin(erreur_moy)]
+            print("Lambda :", self.lamb, "| B :", self.b, "| D:", self.d)
 
     def affichage(self, x_tab, t_tab):
 

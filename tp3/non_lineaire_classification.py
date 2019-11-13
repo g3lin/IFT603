@@ -34,8 +34,8 @@ def analyse_erreur(err_train, err_test):
     elif (err_test > seuil_ss_test) and (err_train > seuil_ss_train):
         print("Warning: Vous êtes probablement en sous-apprentissage")
 
-    print("err_test :", err_test)
-    print("err_train :", err_train)
+    #print("err_test :", err_test)
+    #print("err_train :", err_train)
 
 def main():
 
@@ -69,8 +69,11 @@ def main():
     # ~= À MODIFIER =~. 
     # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
     # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
-    err_train = 50
-    err_test = 50
+    predictions_entrainement = np.array([mp.prediction(x) for x in x_train])
+    err_train = 100*np.sum(np.abs(predictions_entrainement-t_train))/len(t_train)
+
+    predictions_test = np.array([mp.prediction(x) for x in x_test])
+    err_test = 100*np.sum(np.abs(predictions_test-t_test))/len(t_test)
 
     print('Erreur train = ', err_train, '%')
     print('Erreur test = ', err_test, '%')
