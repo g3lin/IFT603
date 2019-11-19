@@ -88,6 +88,29 @@ class LinearClassifier(object):
          Returns a class label for each sample (a number between 0 and num_classes-1)
         """
         class_label = np.zeros(X.shape[0])
+        
+        #J'ai commencé à faire par rapport à la diapo 25 du cours des RN mais jsuis pas sûre
+        #Je sais pas combien de couches il faut utiliser
+        
+        def softmax(x):
+            return np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
+        
+        x = np.insert(X,0,1) # Ajouter biais
+        
+        #couche 1
+        H1 = softmax(np.dot(W0,x))
+        H1 = np.insert(H1,0,1) # Ajouter biais
+        
+        #couche 2
+        H2 = softmax(np.dot(W1,H1))
+        H2 = np.insert(H2,0,1) # Ajouter biais
+        
+        #couche 3
+        H3 = softmax(np.dot(W2,H2))
+        H3 = np.insert(H3,0,1) # Ajouter biais
+        
+        #couche sortie
+        y_pred = softmax(np.dot(W3,H3))
         #############################################################################
         # TODO: Return the best class label.                                        #
         #############################################################################
