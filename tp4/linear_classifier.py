@@ -95,22 +95,17 @@ class LinearClassifier(object):
         def softmax(x):
             return np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
         
+        def sigmoid(x):
+            return 1.0 / (1.0+np.exp(-x))
+        
         x = np.insert(X,0,1) # Ajouter biais
         
         #couche 1
-        H1 = softmax(np.dot(W0,x))
+        H1 = sigmoid(np.dot(W0,x))
         H1 = np.insert(H1,0,1) # Ajouter biais
         
-        #couche 2
-        H2 = softmax(np.dot(W1,H1))
-        H2 = np.insert(H2,0,1) # Ajouter biais
-        
-        #couche 3
-        H3 = softmax(np.dot(W2,H2))
-        H3 = np.insert(H3,0,1) # Ajouter biais
-        
         #couche sortie
-        y_pred = softmax(np.dot(W3,H3))
+        y_pred = softmax(np.dot(W1,H1))
         #############################################################################
         # TODO: Return the best class label.                                        #
         #############################################################################
