@@ -98,14 +98,12 @@ class LinearClassifier(object):
         def sigmoid(x):
             return 1.0 / (1.0+np.exp(-x))
         
-        x = np.insert(X,0,1) # Ajouter biais
-        
-        #couche 1
-        H1 = sigmoid(np.dot(W0,x))
-        H1 = np.insert(H1,0,1) # Ajouter biais
+        x = np.insert(X,0,1) # Ajouter biais (voir si on ajoute le biais ou pas)
         
         #couche sortie
-        y_pred = softmax(np.dot(W1,H1))
+        y_pred = softmax(np.dot(self.W,x))
+        
+        return y_pred
         #############################################################################
         # TODO: Return the best class label.                                        #
         #############################################################################
