@@ -89,8 +89,9 @@ class LinearClassifier(object):
         """
         class_label = np.zeros(X.shape[0])
         
-        #J'ai commencé à faire par rapport à la diapo 25 du cours des RN mais jsuis pas sûre
-        #Je sais pas combien de couches il faut utiliser
+        #############################################################################
+        # TODO: Return the best class label.                                        #
+        #############################################################################
         
         def softmax(x):
             return np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
@@ -98,16 +99,16 @@ class LinearClassifier(object):
         def sigmoid(x):
             return 1.0 / (1.0+np.exp(-x))
         
-        x = np.insert(X,0,1) # Ajouter biais (voir si on ajoute le biais ou pas)
+        for x in X:
+            # Ajouter biais (voir si on ajoute le biais ou pas)
+            if self.bias:
+                x = np.insert(x,0,1)
         
-        #couche sortie
-        y_pred = softmax(np.dot(self.W,x))
-        
-        return y_pred
-        #############################################################################
-        # TODO: Return the best class label.                                        #
-        #############################################################################
+            # Couche de sortie
+            y_pred = softmax(np.dot(self.W,x))
 
+            class_label.append(y_pred)
+        
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -163,6 +164,20 @@ class LinearClassifier(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient => eq.(4.104)                                         #
         #############################################################################
+
+        # Softmax
+        softmax = np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
+
+        for n in range(x.size):
+            for k in range(W.size):
+                # Cross-entropy loss
+                Ed += self.y_train * np.log10(y) 
+                
+                # Ajout du terme de regularisation
+                minarg = Ed + reg
+
+                # Gradient
+
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
