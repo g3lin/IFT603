@@ -131,7 +131,14 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
+        # Softmax
+        softmax = np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
 
+        # Cross-entropy loss
+        Ed = y * np.log10(softmax) 
+                
+        # Ajout du terme de regularisation
+        loss = Ed + reg
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -172,7 +179,7 @@ class LinearClassifier(object):
         Ed = y * np.log10(softmax) 
                 
         # Ajout du terme de regularisation
-        loss += Ed + reg
+        loss = Ed + reg
 
         for n in range(x.size):
             # Gradient
