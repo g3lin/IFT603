@@ -168,14 +168,13 @@ class LinearClassifier(object):
         # Softmax
         softmax = np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
 
-        for n in range(x.size):
-            for k in range(W.size):
-                # Cross-entropy loss
-                Ed += y * np.log10(softmax) 
+        # Cross-entropy loss
+        Ed = y * np.log10(softmax) 
                 
-                # Ajout du terme de regularisation
-                loss += Ed + reg
+        # Ajout du terme de regularisation
+        loss += Ed + reg
 
+        for n in range(x.size):
             # Gradient
             dW += 1/x.size * n * (softmax - y)
 
