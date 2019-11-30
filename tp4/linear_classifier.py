@@ -171,13 +171,13 @@ class LinearClassifier(object):
         for n in range(x.size):
             for k in range(W.size):
                 # Cross-entropy loss
-                Ed += self.y_train * np.log10(y) 
+                Ed += y * np.log10(softmax) 
                 
                 # Ajout du terme de regularisation
-                minarg = Ed + reg
+                loss += Ed + reg
 
-                # Gradient
-
+            # Gradient
+            dW += 1/x.size * n * (softmax - y)
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
