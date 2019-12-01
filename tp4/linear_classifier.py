@@ -131,14 +131,29 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
-        # Softmax
-        softmax = np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
-
-        # Cross-entropy loss
-        Ed = y * np.log10(softmax) 
+        
+        for i in range(y.size):
+            
+            # Ajouter biais (selon le boolean "bias")
+            if self.bias:
+                x = np.insert(X[i],0,1)
+            else:
+                x = X[i]
+            
+            # Softmax
+            softmax = np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
                 
-        # Ajout du terme de regularisation
-        loss = Ed + reg
+            # Cross-entropy loss + terme de regularisation
+            loss += y[i] * np.max(- np.log(softmax)) + reg
+
+            # On compte le nombre de donnees bien clasees
+            if - np.log(softmax[y[i]]) == np.max(- np.log(softmax)):
+                accu += 1
+
+        loss = 1/y.size * loss
+
+        accu = 1/y.size * accu 
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -174,16 +189,12 @@ class LinearClassifier(object):
 
         # Softmax
         softmax = np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
+              
+        # Cross-entropy loss + terme de regularisation
+        loss = y * np.max(- np.log(softmax)) + reg
 
-        # Cross-entropy loss
-        Ed = y * np.log10(softmax) 
-                
-        # Ajout du terme de regularisation
-        loss = Ed + reg
-
-        for n in range(x.size):
-            # Gradient
-            dW += 1/x.size * n * (softmax - y)
+        # Gradient
+        dW = 1/x.size * np.dot(x, softmax - y)
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
