@@ -93,19 +93,14 @@ class LinearClassifier(object):
         # TODO: Return the best class label.                                        #
         #############################################################################
         
-        def softmax(x):
-            return np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
-        
-        def sigmoid(x):
-            return 1.0 / (1.0+np.exp(-x))
-        
         for x in X:
-            # Ajouter biais (voir si on ajoute le biais ou pas)
+            # Ajouter biais (selon le boolean "bias")
             if self.bias:
                 x = np.insert(x,0,1)
         
-            # Couche de sortie
-            y_pred = softmax(np.dot(self.W,x))
+            # Couche de sortie (Softmax)
+            x_t = np.transpose(x)
+            y_pred = np.exp(np.dot(self.W,x_t))/np.sum(np.exp(np.dot(self.W,x_t)))
 
             class_label.append(y_pred)
         
@@ -136,23 +131,31 @@ class LinearClassifier(object):
             
             # Ajouter biais (selon le boolean "bias")
             if self.bias:
-                x = np.insert(X[i],0,1)
+                x = np.insert(X[i],2,1)
             else:
                 x = X[i]
             
+            # Met sous le format d'un vecteur et non d'une liste
+            x.shape = 1,3
+            x_t = np.transpose(x)
+            
             # Softmax
-            softmax = np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
+            exps = np.exp(np.dot(self.W,x_t))
+            softmax = exps / np.sum(exps)
                 
-            # Cross-entropy loss + terme de regularisation
-            loss += y[i] * np.max(- np.log(softmax)) + reg
+            # Cross-entropy loss + terme de 
+            logs_softmax = - np.log(softmax)
+            #loss += - y[i] * np.log(float(softmax[y[i]])) + reg
+            loss += float(logs_softmax[1] + 2 * logs_softmax[2]) + reg
 
             # On compte le nombre de donnees bien clasees
-            if - np.log(softmax[y[i]]) == np.max(- np.log(softmax)):
+            if softmax[y[i]] == np.max(softmax):
                 accu += 1
 
-        loss = 1/y.size * loss
+        loss = 1/(y.size * 3) * loss
+        accu = 1/y.size * accu
 
-        accu = 1/y.size * accu 
+        #print("loss :", loss, "| accu :", accu) 
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -162,6 +165,7 @@ class LinearClassifier(object):
     def cross_entropy_loss(self, x, y, reg=0.0):
         """
         Cross-entropy loss function for one sample pair (X,y) (with softmax)
+        
         C.f. Eq.(4.104 to 4.109) of Bishop book.
 
         Input have dimension D, there are C classes.
@@ -187,20 +191,45 @@ class LinearClassifier(object):
         # 4- Compute gradient => eq.(4.104)                                         #
         #############################################################################
 
+        # Met sous le format d'un vecteur et non d'une liste
+        x.shape = 1,3
+        x_t = np.transpose(x)
+
         # Softmax
-        softmax = np.exp(np.dot(self.W,x))/sum(np.exp(self.W*x))
-              
+        exps = np.exp(np.dot(self.W,x_t))
+        softmax = exps / np.sum(exps)
+        #print(exps, np.sum(exps), softmax)
+
         # Cross-entropy loss + terme de regularisation
-        loss = y * np.max(- np.log(softmax)) + reg
+        logs_softmax = - np.log(softmax)
+        #loss = - y * np.log(float(softmax[y[i]])) + reg
+        loss = float(logs_softmax[1] + 2 * logs_softmax[2]) + reg
+        print("loss :", loss)
 
         # Gradient
-        dW = 1/x.size * np.dot(x, softmax - y)
+        #print("x :", x_t, "| softmax :", softmax, "| y :", y)
+        #softmax[0] -= softmax[y] - 0
+        #softmax[1] -= softmax[y] - 1
+        #softmax[2] -= softmax[y] - 2
+        
+        #softmax.shape = 1,3
+        #dW = np.dot(x_t, softmax - y)
+
+        for i in range(len(dW)):
+            for j in range(len(dW)):
+                if i == j:
+                    dW[i][j] = float(softmax[i]) * (1-float(softmax[i]))
+                else:
+                    dW[i][j] = - float(softmax[i]) * float(softmax[j])
+
+        #print("dW :", dW)
+        #print("W :", self.W)
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
         return loss, dW
-
+from sklearn.linear_model import LogisticRegression
 
 def augment(x):
     if len(x.shape) == 1:
