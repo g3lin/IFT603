@@ -131,28 +131,22 @@ class LinearClassifier(object):
             
             # Ajouter biais (selon le boolean "bias")
             if self.bias:
-                x = np.insert(X[i],2,1)
+                x = augment(X[i])
             else:
                 x = X[i]
             
-            # Met sous le format d'un vecteur et non d'une liste
-            x.shape = 1,3
-            x_t = np.transpose(x)
-            
             # Softmax
-            exps = np.exp(np.dot(self.W,x_t))
+            exps = np.exp(np.dot(np.transpose(self.W), x))
             softmax = exps / np.sum(exps)
-                
-            # Cross-entropy loss + terme de 
-            logs_softmax = - np.log(softmax)
-            #loss += - y[i] * np.log(float(softmax[y[i]])) + reg
-            loss += float(logs_softmax[1] + 2 * logs_softmax[2]) + reg
+
+            # Cross-entropy loss + terme de regularisation
+            loss += - np.log(softmax[y[i]]) + reg
 
             # On compte le nombre de donnees bien clasees
             if softmax[y[i]] == np.max(softmax):
                 accu += 1
 
-        loss = 1/(y.size * 3) * loss
+        loss = 1/y.size * loss
         accu = 1/y.size * accu
 
         #print("loss :", loss, "| accu :", accu) 
@@ -191,39 +185,16 @@ class LinearClassifier(object):
         # 4- Compute gradient => eq.(4.104)                                         #
         #############################################################################
 
-        # Met sous le format d'un vecteur et non d'une liste
-        x.shape = 1,3
-        x_t = np.transpose(x)
-
         # Softmax
-        exps = np.exp(np.dot(self.W,x_t))
+        exps = np.exp(np.dot(np.transpose(self.W),x))
         softmax = exps / np.sum(exps)
-        #print(exps, np.sum(exps), softmax)
 
         # Cross-entropy loss + terme de regularisation
-        logs_softmax = - np.log(softmax)
-        #loss = - y * np.log(float(softmax[y[i]])) + reg
-        loss = float(logs_softmax[1] + 2 * logs_softmax[2]) + reg
-        print("loss :", loss)
+        loss = - np.log(softmax[y]) + reg
 
         # Gradient
-        #print("x :", x_t, "| softmax :", softmax, "| y :", y)
-        #softmax[0] -= softmax[y] - 0
-        #softmax[1] -= softmax[y] - 1
-        #softmax[2] -= softmax[y] - 2
-        
-        #softmax.shape = 1,3
-        #dW = np.dot(x_t, softmax - y)
-
-        for i in range(len(dW)):
-            for j in range(len(dW)):
-                if i == j:
-                    dW[i][j] = float(softmax[i]) * (1-float(softmax[i]))
-                else:
-                    dW[i][j] = - float(softmax[i]) * float(softmax[j])
-
-        #print("dW :", dW)
-        #print("W :", self.W)
+        one_hot = np.arange(self.num_classes) == y
+        dW = np.dot(x[:,np.newaxis], (np.array(softmax) - one_hot)[np.newaxis,:])
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
