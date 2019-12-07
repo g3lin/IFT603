@@ -93,16 +93,27 @@ class LinearClassifier(object):
         # TODO: Return the best class label.                                        #
         #############################################################################
         
-        for x in X:
+        for i in range(X.shape[0]):
             # Ajouter biais (selon le boolean "bias")
             if self.bias:
-                x = np.insert(x,0,1)
+                x = augment(X[i])
+            else:
+                x = X[i]
         
-            # Couche de sortie (Softmax)
-            x_t = np.transpose(x)
-            y_pred = np.exp(np.dot(self.W,x_t))/np.sum(np.exp(np.dot(self.W,x_t)))
+            # Couche de sortie : softmax
+            exps = np.exp(np.dot(np.transpose(self.W), x))
+            y_pred = exps / np.sum(exps)
 
-            class_label.append(y_pred)
+            # Recuperer le meilleur label
+            best_proba = np.max(y_pred)
+            if y_pred[0] == best_proba:
+                best_label = 0
+            elif y_pred[1] == best_proba:
+                best_label = 1
+            else:
+                best_label = 2
+
+            class_label[i] = best_label
         
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -148,8 +159,6 @@ class LinearClassifier(object):
 
         loss = 1/y.size * loss
         accu = 1/y.size * accu
-
-        #print("loss :", loss, "| accu :", accu) 
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
