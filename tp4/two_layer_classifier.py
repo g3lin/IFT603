@@ -125,13 +125,16 @@ class TwoLayerClassifier(object):
 
         for i in range(y.size):
 
-            # Couche cachée : sigmoide
+            # Couches cachées : sigmoide
+            
             x_i = augment(x[i])
             x1 = sigmoid(np.dot(np.transpose(self.net.layer1.W), x_i))
 
-            # Couche de sortie : softmax
             x1 = augment(x1)
-            exps = np.exp(np.dot(np.transpose(self.net.layer2.W), x1))
+            x2 = sigmoid(np.dot(np.transpose(self.net.layer2.W), x1))
+            
+            # Couche de sortie : softmax
+            exps = np.exp(x2)
             softmax = exps / np.sum(exps)  
 
             # Cross-entropy loss + terme de regularisation
@@ -164,7 +167,12 @@ class TwoLayerClassifier(object):
         #############################################################################
         # TODO: update w with momentum                                              #
         #############################################################################
-        v=0 # remove this line
+        
+        #v = mu * v_prev - lr * dw
+        #w += v
+        v = mu * v_prev + dw
+        w -= lr * v
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -255,13 +263,13 @@ class TwoLayerNet(object):
                 else:
                     jacobien[i][j] =  - softmax[i] * softmax[j]
 
-        print(jacobien)
         one_hot = np.arange(self.num_classes) == y
-        #dloss_dscores = np.dot(jacobien, (np.array(softmax) - one_hot)).reshape(4,)
         dL = -1 * (one_hot / softmax)
-        dloss_dscores = np.dot(dL, jacobien).reshape(4,)
-        print("softmax :", softmax)
-        print("dloss_dscores :", dloss_dscores, dloss_dscores.shape)
+        dloss_dscores = np.dot(dL, jacobien)
+        
+        #print("scores :", scores)
+        #print("softmax :", softmax)
+        #print("dloss_dscores :", dloss_dscores, dloss_dscores.shape)
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -315,7 +323,7 @@ class DenseLayer(object):
         x = augment(x)
 
         # Applique la foncion d'activation
-        f = sigmoid(np.dot(x, self.W))
+        f = sigmoid(np.dot(np.transpose(self.W), x))
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
