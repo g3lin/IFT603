@@ -125,16 +125,16 @@ class TwoLayerClassifier(object):
 
         for i in range(y.size):
 
-            # Couches cachées : sigmoide
-            
+            # Couches cachées : sigmoide / relu
             x_i = augment(x[i])
-            x1 = sigmoid(np.dot(np.transpose(self.net.layer1.W), x_i))
-
-            x1 = augment(x1)
-            x2 = sigmoid(np.dot(np.transpose(self.net.layer2.W), x1))
+            if self.net.layer1.activation == 'sigmoid': 
+                x1 = sigmoid(np.dot(np.transpose(self.net.layer1.W), x_i))
+            elif self.net.layer1.activation == 'relu':
+                x1 = relu(np.dot(np.transpose(self.net.layer1.W), x_i))
             
             # Couche de sortie : softmax
-            exps = np.exp(x2)
+            x1 = augment(x1)
+            exps = np.exp(np.dot(np.transpose(self.net.layer2.W), x1))
             softmax = exps / np.sum(exps)  
 
             # Cross-entropy loss + terme de regularisation
@@ -168,10 +168,10 @@ class TwoLayerClassifier(object):
         # TODO: update w with momentum                                              #
         #############################################################################
         
-        #v = mu * v_prev - lr * dw
-        #w += v
-        v = mu * v_prev + dw
-        w -= lr * v
+        v = mu * v_prev - lr * dw
+        w += v
+        #v = mu * v_prev + dw
+        #w -= lr * v
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -264,11 +264,13 @@ class TwoLayerNet(object):
                     jacobien[i][j] =  - softmax[i] * softmax[j]
 
         one_hot = np.arange(self.num_classes) == y
-        dL = -1 * (one_hot / softmax)
+        dL = one_hot * (-1 / softmax)
         dloss_dscores = np.dot(dL, jacobien)
+        #dloss_dscores = np.dot(jacobien, dL)
         
         #print("scores :", scores)
         #print("softmax :", softmax)
+        #print("dL :", dL)
         #print("dloss_dscores :", dloss_dscores, dloss_dscores.shape)
 
         #############################################################################
@@ -322,8 +324,15 @@ class DenseLayer(object):
         # Ajouter biais
         x = augment(x)
 
-        # Applique la foncion d'activation
-        f = sigmoid(np.dot(np.transpose(self.W), x))
+        # Applique la foncion d'activation s'il y en a une            
+        if self.activation == 'sigmoid':
+            f = sigmoid(np.dot(np.transpose(self.W), x))
+
+        elif self.activation == 'relu':
+            f = relu(np.dot(np.transpose(self.W), x))
+            
+        else:
+            f = np.dot(np.transpose(self.W), x)
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -363,3 +372,9 @@ def augment(x):
 
 def sigmoid(x):
     return 1.0 / (1.0 + np.exp(-x))
+
+def relu(x):
+    for i in range(x.size):
+        if x[i] < 0:
+            x[i] = 0
+    return x
