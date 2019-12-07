@@ -123,6 +123,27 @@ class TwoLayerClassifier(object):
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
 
+        for i in range(y.size):
+
+            # Couche cachée : sigmoide
+            x_i = augment(x[i])
+            x1 = sigmoid(np.dot(np.transpose(self.net.layer1.W), x_i))
+
+            # Couche de sortie : softmax
+            x1 = augment(x1)
+            exps = np.exp(np.dot(np.transpose(self.net.layer2.W), x1))
+            softmax = exps / np.sum(exps)  
+
+            # Cross-entropy loss + terme de regularisation
+            loss += - np.log(softmax[y[i]]) + self.net.l2_reg
+
+            # On compte le nombre de donnees bien clasees
+            if softmax[y[i]] == np.max(softmax):
+                accu += 1
+
+        loss = 1/y.size * loss
+        accu = 1/y.size * accu
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -217,6 +238,31 @@ class TwoLayerNet(object):
         # 4- Compute gradient with respect to the score => eq.(4.104) with phi_n=1  #
         #############################################################################
 
+        # Softmax
+        exps = np.exp(scores)
+        softmax = exps / np.sum(exps)
+
+        # Cross-entropy loss + terme de regularisation
+        loss = - np.log(softmax[y]) + self.l2_reg
+
+        # Gradient
+        jacobien = np.zeros((self.num_classes, self.num_classes))
+
+        for i in range(self.num_classes):
+            for j in range(self.num_classes):
+                if i == j:
+                    jacobien[i][j] = softmax[i] * (1 - softmax[i])
+                else:
+                    jacobien[i][j] =  - softmax[i] * softmax[j]
+
+        print(jacobien)
+        one_hot = np.arange(self.num_classes) == y
+        #dloss_dscores = np.dot(jacobien, (np.array(softmax) - one_hot)).reshape(4,)
+        dL = -1 * (one_hot / softmax)
+        dloss_dscores = np.dot(dL, jacobien).reshape(4,)
+        print("softmax :", softmax)
+        print("dloss_dscores :", dloss_dscores, dloss_dscores.shape)
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -259,12 +305,17 @@ class DenseLayer(object):
         Returns a tuple of:
         - f: a floating point value
         """
-        x = augment(x)
+        
         #############################################################################
         # TODO: Compute forward pass.  Do not forget to add 1 to x in case of bias  #
         # C.f. function augment(x)                                                  #
         #############################################################################
-        f = self.W[1] ## REMOVE THIS LINE
+        
+        # Ajouter biais
+        x = augment(x)
+
+        # Applique la foncion d'activation
+        f = sigmoid(np.dot(x, self.W))
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
