@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+#####
+# Lauren Picard 19 159 731
+# Julien Brosseau 19 124 617
+# Antoine Gelin 19 146 158
+###
+
 import numpy as np
 
 
@@ -88,7 +96,32 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for one sample.                #
             #############################################################################
-            return 0
+
+            # Couches cachées : sigmoide / relu
+            x_i = augment(x)
+            if self.net.layer1.activation == 'sigmoid': 
+                x1 = sigmoid(np.dot(np.transpose(self.net.layer1.W), x_i))
+            elif self.net.layer1.activation == 'relu':
+                x1 = relu(np.dot(np.transpose(self.net.layer1.W), x_i))
+            
+            # Couche de sortie : softmax
+            x1 = augment(x1)
+            exps = np.exp(np.dot(np.transpose(self.net.layer2.W), x1))
+            y_pred = exps / np.sum(exps) 
+
+            # Recuperer le meilleur label
+            best_proba = np.max(y_pred)
+            if y_pred[0] == best_proba:
+                best_label = 0
+            elif y_pred[1] == best_proba:
+                best_label = 1
+            elif y_pred[2] == best_proba:
+                best_label = 2
+            else:
+                best_label = 3
+            
+            return best_label
+
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -97,7 +130,38 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for many samples               #
             #############################################################################
-            return np.zeros(x.shape[0])
+            
+            class_label = np.zeros(x.shape[0])
+
+            for i in range(x.shape[0]):
+
+                # Couches cachées : sigmoide / relu
+                x_i = augment(x[i])
+                if self.net.layer1.activation == 'sigmoid': 
+                    x1 = sigmoid(np.dot(np.transpose(self.net.layer1.W), x_i))
+                elif self.net.layer1.activation == 'relu':
+                    x1 = relu(np.dot(np.transpose(self.net.layer1.W), x_i))
+                
+                # Couche de sortie : softmax
+                x1 = augment(x1)
+                exps = np.exp(np.dot(np.transpose(self.net.layer2.W), x1))
+                y_pred = exps / np.sum(exps) 
+
+                # Recuperer le meilleur label
+                best_proba = np.max(y_pred)
+                if y_pred[0] == best_proba:
+                    best_label = 0
+                elif y_pred[1] == best_proba:
+                    best_label = 1
+                elif y_pred[2] == best_proba:
+                    best_label = 2
+                else:
+                    best_label = 3
+
+                class_label[i] = best_label
+                
+            return class_label
+
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -170,8 +234,6 @@ class TwoLayerClassifier(object):
         
         v = mu * v_prev - lr * dw
         w += v
-        #v = mu * v_prev + dw
-        #w -= lr * v
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -266,12 +328,6 @@ class TwoLayerNet(object):
         one_hot = np.arange(self.num_classes) == y
         dL = one_hot * (-1 / softmax)
         dloss_dscores = np.dot(dL, jacobien)
-        #dloss_dscores = np.dot(jacobien, dL)
-        
-        #print("scores :", scores)
-        #print("softmax :", softmax)
-        #print("dL :", dL)
-        #print("dloss_dscores :", dloss_dscores, dloss_dscores.shape)
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -374,7 +430,4 @@ def sigmoid(x):
     return 1.0 / (1.0 + np.exp(-x))
 
 def relu(x):
-    for i in range(x.size):
-        if x[i] < 0:
-            x[i] = 0
-    return x
+    return np.where(x >= 0, x, 0)

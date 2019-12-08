@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+#####
+# Lauren Picard 19 159 731
+# Julien Brosseau 19 124 617
+# Antoine Gelin 19 146 158
+###
+
 import numpy as np
 
 
@@ -209,7 +217,6 @@ class LinearClassifier(object):
         #                          END OF YOUR CODE                                 #
         #############################################################################
         return loss, dW
-from sklearn.linear_model import LogisticRegression
 
 def augment(x):
     if len(x.shape) == 1:
